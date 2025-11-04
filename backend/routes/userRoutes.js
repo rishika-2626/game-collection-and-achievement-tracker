@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
+
 const db = require("../config/db");
 
+const { getUserById, getUserGames, getUserAchievements, getUserBadges } = require("../controllers/userController");
 
-router.get("/", (req, res) => {
-  db.query("SELECT * FROM users", (err, results) => {
-    if (err) return res.status(500).send(err);
-    res.json(results);
-  });
-});
+router.get("/:id", getUserById);
+router.get("/:id/games", getUserGames);
+router.get("/:id/achievements", getUserAchievements);
+router.get("/:id/badges", getUserBadges);
 
 module.exports = router;
