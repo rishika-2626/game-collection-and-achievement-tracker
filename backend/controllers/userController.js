@@ -1,77 +1,178 @@
 const db = require("../config/db");
+const bcrypt = require("bcryptjs");
 
-// Get user details by ID
+// -------------------- CREATE --------------------
+
+// ✅ Register new user
+const registerUser = async (req, res) => {
+  const { username, email, password } = req.body;
+
+  // Validate input
+  if (!username || !email || !password)
+    return res.status(400).json({ message: "All fields are required" });
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const q = `
+      INSERT INTO User (username, email, password, join_date, total_points)
+      VALUES (?, ?, ?, CURDATE(), 0)
+    `;
+    db.query(q, [username, email, hashedPassword], (err, result) => {
+      if (err) return res.status(500).json({ error: err });
+      res.json({ message: "User registered successfully", userId: result.insertId });
+    });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
+
+// ✅ Login user
+const loginUser = (req, res) => {
+  const { email, password } = req.body;
+
+  const q = `SELECT * FROM User WHERE email = ?`;
+  db.query(q, [email], async (err, results) => {
+    if (err) return res.status(500).json({ error: err });
+    if (results.length === 0)
+      return res.status(404).json({ message: "User not found" });
+
+    const user = results[0];
+    const validPass = await bcrypt.compare(password, user.password);
+    if (!validPass) return res.status(401).json({ message: "Invalid password" });
+
+    res.json({
+      message: "Login successful",
+      user: { id: user.user_id, username: user.username, total_points: user.total_points },
+    });
+  });
+};
+
+// -------------------- READ --------------------
+
+// ✅ Get user details
 const getUserById = (req, res) => {
   const userId = req.params.id;
-  console.log("Request for user ID:", userId);
-
-  const q = "SELECT * FROM User WHERE user_id = ?";
+  const q = `SELECT user_id, username, email, join_date, total_points FROM User WHERE user_id = ?`;
   db.query(q, [userId], (err, result) => {
-    if (err) {
-        console.error("DB Error:", err);
-        return res.status(500).json({ error: err });
-    }
-    console.log("DB Result:", result);
-    if (result.length === 0) {
-        return res.status(404).json({ message: "User not found" });
-    }
+    if (err) return res.status(500).json(err);
     res.json(result[0]);
   });
 };
 
-
-// Get all games played by the user
+// ✅ Get user's games
 const getUserGames = (req, res) => {
   const userId = req.params.id;
   const q = `
-    SELECT DISTINCT g.game_id, g.title, g.release_year, p.name AS platform
-    FROM Game g
-    JOIN Game_Platform gp ON g.game_id = gp.game_id
-    JOIN Platform p ON gp.platform_id = p.platform_id
-    JOIN User_Game ug ON g.game_id = ug.game_id
+    SELECT g.game_id, g.title, g.release_year, gen.name AS genre, ug.is_completed, ug.date_added
+    FROM User_Game ug
+    JOIN Game g ON ug.game_id = g.game_id
+    JOIN Genre gen ON g.genre_id = gen.genre_id
     WHERE ug.user_id = ?;
   `;
-  db.query(q, [userId], (err, result) => {
-    if (err) return res.status(500).json({ error: err });
-    res.json(result);
+  db.query(q, [userId], (err, results) => {
+    if (err) return res.status(500).json(err);
+    res.json(results);
   });
 };
 
-// Get all achievements for a user
+// ✅ Get user's achievements
 const getUserAchievements = (req, res) => {
   const userId = req.params.id;
   const q = `
-    SELECT a.achievement_id, a.title AS achievement_title, a.points, g.title AS game_title
+    SELECT a.title, a.description, a.points, g.title AS game_title, ua.date_unlocked
     FROM User_Achievement ua
     JOIN Achievement a ON ua.achievement_id = a.achievement_id
     JOIN Game g ON a.game_id = g.game_id
     WHERE ua.user_id = ?;
   `;
-  db.query(q, [userId], (err, result) => {
-    if (err) return res.status(500).json({ error: err });
-    res.json(result);
+  db.query(q, [userId], (err, results) => {
+    if (err) return res.status(500).json(err);
+    res.json(results);
   });
 };
 
-// Get all badges for a user
+// ✅ Get user's badges
 const getUserBadges = (req, res) => {
   const userId = req.params.id;
   const q = `
-    SELECT b.badge_id, b.name AS badge_name, b.description, b.criteria
+    SELECT b.name, b.description, ub.date_awarded
     FROM User_Badge ub
     JOIN Badge b ON ub.badge_id = b.badge_id
     WHERE ub.user_id = ?;
   `;
-  db.query(q, [userId], (err, result) => {
-    if (err) return res.status(500).json({ error: err });
-    res.json(result);
+  db.query(q, [userId], (err, results) => {
+    if (err) return res.status(500).json(err);
+    res.json(results);
   });
 };
 
+// -------------------- UPDATE --------------------
+
+// ✅ Mark game as completed
+const markGameCompleted = (req, res) => {
+  const { id, gameId } = req.params;
+  const q = `
+    UPDATE User_Game
+    SET is_completed = TRUE, completion_date = CURDATE()
+    WHERE user_id = ? AND game_id = ?;
+  `;
+  db.query(q, [id, gameId], (err) => {
+    if (err) return res.status(500).json(err);
+    res.json({ message: "Game marked as completed!" });
+  });
+};
+
+// -------------------- DELETE --------------------
+
+// ✅ Delete game from collection
+const deleteUserGame = (req, res) => {
+  const { id, gameId } = req.params;
+  const q = `DELETE FROM User_Game WHERE user_id = ? AND game_id = ?`;
+  db.query(q, [id, gameId], (err) => {
+    if (err) return res.status(500).json(err);
+    res.json({ message: "Game removed from collection" });
+  });
+};
+
+// -------------------- ADD RELATIONS --------------------
+
+// ✅ Add game to collection
+const addUserGame = (req, res) => {
+  const userId = req.params.id;
+  const { game_id } = req.body;
+  const q = `
+    INSERT INTO User_Game (user_id, game_id, date_added, is_completed)
+    VALUES (?, ?, CURDATE(), FALSE);
+  `;
+  db.query(q, [userId, game_id], (err) => {
+    if (err) return res.status(500).json(err);
+    res.json({ message: "Game added to collection!" });
+  });
+};
+
+// ✅ Unlock new achievement
+const unlockAchievement = (req, res) => {
+  const userId = req.params.id;
+  const { achievement_id } = req.body;
+  const q = `
+    INSERT INTO User_Achievement (user_id, achievement_id, date_unlocked)
+    VALUES (?, ?, CURDATE());
+  `;
+  db.query(q, [userId, achievement_id], (err) => {
+    if (err) return res.status(500).json(err);
+    res.json({ message: "Achievement unlocked!" });
+  });
+};
 
 module.exports = {
+  registerUser,
+  loginUser,
   getUserById,
   getUserGames,
   getUserAchievements,
   getUserBadges,
+  markGameCompleted,
+  deleteUserGame,
+  addUserGame,
+  unlockAchievement,
 };
