@@ -1,0 +1,121 @@
+.game-info-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 2rem;
+  font-family: "Poppins", sans-serif;
+  color: #333;
+}
+
+/* Header */
+.game-header {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  padding: 1.5rem;
+  border-radius: 20px;
+  color: white;
+  margin-bottom: 2rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.game-cover {
+  width: 150px;
+  height: 150px;
+  border-radius: 15px;
+  margin-right: 1.5rem;
+  object-fit: cover;
+}
+
+.game-details h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Sections */
+.section {
+  background: #fff;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.section h2 {
+  color: #007bff;
+  margin-bottom: 1rem;
+}
+
+/* Tables */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.data-table tr:hover {
+  background: #f9f9ff;
+}
+
+/* Charts */
+.charts-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.chart-card {
+  background: #fff;
+  border-radius: 15px;
+  padding: 1rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Buttons */
+.actions {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.actions button {
+  margin: 0 0.6rem;
+  padding: 0.8rem 1.2rem;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  color: white;
+  transition: 0.3s;
+}
+
+.back-btn {
+  background: #6c757d;
+}
+
+.complete-btn {
+  background: #28a745;
+}
+
+.add-ach-btn {
+  background: #007bff;
+}
+
+.actions button:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #007bff;
+  font-size: 1.2rem;
+}

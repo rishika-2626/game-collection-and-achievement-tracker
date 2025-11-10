@@ -1,92 +1,232 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
 .home-container {
   padding: 2rem;
-  max-width: 900px;
+  max-width: 950px;
   margin: auto;
   font-family: "Poppins", sans-serif;
-  color: #333;
+  color: #222;
+  animation: fadeIn 0.6s ease-in-out;
 }
 
-/* Profile */
+/* PROFILE SECTION */
 .profile-section {
   display: flex;
   align-items: center;
-  background: #f8f9fa;
-  padding: 1rem;
-  border-radius: 15px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  margin-bottom: 1.5rem;
+  justify-content: flex-start;
+  background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+  padding: 1.5rem;
+  border-radius: 20px;
+  color: white;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 114, 255, 0.3);
 }
 
 .avatar {
-  width: 80px;
-  height: 80px;
+  width: 85px;
+  height: 85px;
   border-radius: 50%;
+  border: 3px solid white;
   margin-right: 1rem;
 }
 
 .user-info h2 {
   margin: 0;
-  color: #007bff;
+  font-size: 1.8rem;
 }
 
 .user-info .points {
-  color: #28a745;
+  margin-top: 0.3rem;
   font-weight: 600;
+  color: #ffeb3b;
 }
 
-/* Stats Cards */
+/* STAT CARDS */
 .stats-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.2rem;
+  margin-bottom: 2.5rem;
 }
 
 .card {
-  background: #ffffff;
-  border-radius: 15px;
+  color: white;
+  border-radius: 20px;
   text-align: center;
-  padding: 1rem;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-  transition: 0.3s;
+  padding: 1.2rem;
+  font-weight: 500;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card:hover {
-  transform: translateY(-5px);
-  background: #f0f8ff;
+  transform: translateY(-6px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.25);
 }
 
-/* Sections */
+/* SECTIONS */
 .section {
-  background: #f9fafb;
-  border-radius: 15px;
-  padding: 1rem 1.5rem;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
-  margin-bottom: 1.5rem;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 1.5rem 1.8rem;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.section:hover {
+  background: #f8fbff;
+  transform: scale(1.01);
 }
 
 .section h2 {
-  color: #333;
+  color: #007bff;
+  font-weight: 600;
   margin-bottom: 1rem;
 }
 
+/* LISTS */
 .section ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .section li {
-  background: white;
-  border-radius: 10px;
-  padding: 10px;
-  margin-bottom: 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  background: #f5f9ff;
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.8rem;
+  transition: all 0.3s ease;
 }
 
-/* Loading */
+.section li:hover {
+  background: #e3f2fd;
+  transform: translateX(5px);
+}
+
+.achievement-item strong {
+  color: #ff9800;
+}
+
+/* LOADING */
 .loading {
   text-align: center;
   padding: 3rem;
-  font-size: 1.2rem;
   color: #007bff;
+  font-size: 1.2rem;
+}
+
+.spinner {
+  width: 45px;
+  height: 45px;
+  margin: 0 auto 1rem;
+  border: 4px solid #007bff;
+  border-top: 4px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* ANIMATIONS */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+
+/* Floating Add Game Button */
+.add-game-btn {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+  color: white;
+  font-size: 1.8rem;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 114, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.add-game-btn:hover {
+  transform: scale(1.1);
+  background: linear-gradient(135deg, #0072ff 0%, #00c6ff 100%);
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+/* Modal Box */
+.modal {
+  background: #ffffff;
+  border-radius: 15px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  animation: fadeInUp 0.4s ease;
+}
+
+.modal h2 {
+  margin-bottom: 1rem;
+  color: #007bff;
+}
+
+.modal form {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.modal select {
+  padding: 0.7rem;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  margin-bottom: 1rem;
+  font-family: "Poppins", sans-serif;
+}
+
+.submit-btn {
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.submit-btn:hover {
+  transform: scale(1.03);
+  background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%);
+}
+
+/* Modal Animation */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(25px); }
+  to { opacity: 1; transform: translateY(0); }
 }

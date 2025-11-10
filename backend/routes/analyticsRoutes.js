@@ -25,5 +25,11 @@ router.get("/:id/points-per-month", analytics.getPointsEarnedPerMonth);
 router.get("/:id/players-ahead", analytics.getPlayersAhead);
 router.get("/common-badges", analytics.getMostCommonBadges);
 router.get("/:id/badges-not-earned", analytics.getBadgesNotEarned);
+// For Game Info Page
+router.get("/game/:gameId", analytics.getGameById);
+router.get("/:userId/game/:gameId/achievements", analytics.getAchievementsForGame);
+router.get("/game/:gameId/top-users", analytics.getTopUsersForGame);
+router.get("/:userId/game/:gameId/points-over-time", analytics.getGamePointsOverTime);
+//router.get("/game/:gameId/completion-rate", analytics.getGameCompletionRate);
 
 module.exports = router;
