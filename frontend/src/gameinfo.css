@@ -119,3 +119,158 @@
   color: #007bff;
   font-size: 1.2rem;
 }
+
+/* === BUTTON STYLES === */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 1.2rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+/* Base button style */
+.actions button {
+  border: none;
+  padding: 12px 22px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #fff;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.3px;
+}
+
+/* Back Button */
+.back-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.back-btn:hover {
+  transform: translateY(-3px);
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+  box-shadow: 0 6px 18px rgba(102, 126, 234, 0.4);
+}
+
+/* Mark as Completed Button */
+.complete-btn {
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+  color: #fff;
+}
+
+.complete-btn:hover {
+  transform: translateY(-3px);
+  background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+  box-shadow: 0 6px 18px rgba(76, 175, 80, 0.4);
+}
+
+/* Add Achievement Button */
+.add-ach-btn {
+  background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+  color: #333;
+}
+
+.add-ach-btn:hover {
+  transform: translateY(-3px);
+  background: linear-gradient(135deg, #f9a825 0%, #ffeb3b 100%);
+  box-shadow: 0 6px 18px rgba(249, 168, 37, 0.4);
+}
+
+/* Add subtle animation */
+.actions button:active {
+  transform: scale(0.96);
+}
+
+/* Responsive alignment for smaller screens */
+@media (max-width: 600px) {
+  .actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .actions button {
+    width: 80%;
+  }
+}
+
+.complete-btn {
+  background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 176, 155, 0.3);
+}
+
+.complete-btn:hover {
+  transform: translateY(-3px);
+  background: linear-gradient(135deg, #1abc9c 0%, #a8e063 100%);
+}
+
+/* === Modal === */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(3px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal {
+  background: white;
+  border-radius: 15px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal select {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.submit-btn {
+  background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 1rem;
+  transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+  background: linear-gradient(135deg, #43a047 0%, #7cb342 100%);
+  transform: translateY(-2px);
+}
+
+/* ===== Links (Recent Games) ===== */
+.game-link {
+  text-decoration: none;              /* 🚫 Remove underline */
+  color: #007bff;                     /* Nice blue color */
+  font-weight: 600;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.game-link:hover {
+  color: #0056b3;                     /* Darker on hover */
+  transform: scale(1.05);             /* Slight zoom */
+}

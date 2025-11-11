@@ -1,0 +1,87 @@
+.leaderboard-container {
+  background: #f8fbff;
+  min-height: 100vh;
+  padding: 3rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: "Poppins", sans-serif;
+}
+
+.leaderboard-title {
+  font-size: 2.5rem;
+  color: #007bff;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.leaderboard-subtitle {
+  color: #555;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+.leaderboard-table {
+  width: 90%;
+  max-width: 800px;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: 15px 20px;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.leaderboard-table th {
+  background: #007bff;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.leaderboard-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.leaderboard-table tr:hover {
+  background-color: #eef4ff;
+  transform: scale(1.01);
+  transition: all 0.2s ease-in-out;
+}
+
+/* 🥇 Medal colors for top 3 */
+.gold {
+  background-color: #fff9c4 !important;
+  font-weight: bold;
+}
+.silver {
+  background-color: #e0e0e0 !important;
+  font-weight: bold;
+}
+.bronze {
+  background-color: #f5deb3 !important;
+  font-weight: bold;
+}
+
+.back-btn {
+  margin-top: 2rem;
+  background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  transform: translateY(-3px);
+  background: linear-gradient(135deg, #1abc9c 0%, #a8e063 100%);
+}

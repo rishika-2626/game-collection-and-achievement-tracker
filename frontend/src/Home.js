@@ -3,7 +3,6 @@ import axios from "axios";
 import "./home.css";
 import { Link } from "react-router-dom";
 
-
 const Home = () => {
   const [user, setUser] = useState(null);
   const [stats, setStats] = useState({});
@@ -13,11 +12,9 @@ const Home = () => {
   const [showModal, setShowModal] = useState(false);
   const [newGameId, setNewGameId] = useState("");
   const [availableGames, setAvailableGames] = useState([]);
+  const [currentUserId, setCurrentUserId] = useState(localStorage.getItem("userId") || 1);
 
-  const userId = 1; // replace with logged-in user's ID later
-
-  // Fetch data
-  const fetchData = async () => {
+  const fetchData = async (userId) => {
     try {
       const [
         userRes,
@@ -53,7 +50,6 @@ const Home = () => {
     }
   };
 
-  // Fetch all games for dropdown
   const fetchAvailableGames = async () => {
     try {
       const res = await axios.get("http://localhost:5001/games");
@@ -64,21 +60,32 @@ const Home = () => {
   };
 
   useEffect(() => {
-    fetchData();
+    localStorage.setItem("userId", currentUserId);
+    fetchData(currentUserId);
     fetchAvailableGames();
-  }, [userId]);
+  }, [currentUserId]);
 
-  // Handle adding new game
+  const handleUserChange = (e) => {
+    const newId = e.target.value;
+    console.log("🆕 Switching to user:", newId);
+    setCurrentUserId(newId);
+    localStorage.setItem("userId", newId);
+    setLoading(true);
+    fetchData(newId);
+  };
+
   const handleAddGame = async (e) => {
     e.preventDefault();
     if (!newGameId) return alert("Please select a game!");
 
     try {
-      await axios.post(`http://localhost:5001/users/${userId}/games`, { game_id: newGameId });
+      await axios.post(`http://localhost:5001/users/${currentUserId}/games`, {
+        game_id: newGameId,
+      });
       alert("Game added successfully!");
       setShowModal(false);
       setNewGameId("");
-      fetchData(); // refresh dashboard data
+      fetchData(currentUserId);
     } catch (err) {
       console.error("Error adding game:", err);
       alert("Error adding game. Check console for details.");
@@ -95,21 +102,54 @@ const Home = () => {
 
   return (
     <div className="home-container">
-      {/* Profile */}
-      <div className="profile-section">
-        <img
-          src="https://api.dicebear.com/9.x/thumbs/svg?seed=Rishika"
-          alt="User Avatar"
-          className="avatar"
-        />
-        <div className="user-info">
-          <h2>{user.username}</h2>
-          <p>🎮 Joined: {new Date(user.join_date).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</p>
-          <p className="points">⭐ {stats.totalPoints} Points</p>
+      {/* Header with Title and User Switcher */}
+      <div className="header">
+        <h1 className="dashboard-title">🎮 Game Tracker</h1>
+        <div className="user-switcher">
+          <label htmlFor="userSelect">👤 View as:</label>
+          <select id="userSelect" value={currentUserId} onChange={handleUserChange}>
+            <option value="1">Mahathi</option>
+            <option value="2">Arjun</option>
+            <option value="3">Sneha</option>
+            <option value="4">Ravi</option>
+            <option value="5">Meera</option>
+            <option value="6">Kiran</option>
+            <option value="7">Tanya</option>
+            <option value="8">Vijay</option>
+          </select>
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Merged Profile + Quick Links Section */}
+      <div className="profile-header">
+        <div className="profile-left">
+          <img
+            src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${user.username}`}
+            alt="User Avatar"
+            className="avatar"
+          />
+          <div className="user-info">
+            <h2>{user.username}</h2>
+            <p>
+              🎮 Joined:{" "}
+              {new Date(user.join_date).toLocaleDateString("en-US", {
+                month: "short",
+                year: "numeric",
+              })}
+            </p>
+            <p className="points">⭐ {stats.totalPoints} Points</p>
+          </div>
+        </div>
+
+        <div className="profile-links">
+          <Link to="/leaderboard" className="leaderboard-link">🏆 Leaderboard</Link>
+          <Link to="/mygames" className="mygames-link">🎮 My Games</Link>
+          <Link to="/analytics" className="analytics-link">📊 Analytics</Link>
+          <Link to="/achievements" className="achievements-link">🏅 Achievements</Link>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
       <div className="stats-cards">
         {[
           { title: "Total Points", value: stats.totalPoints, color: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)" },
@@ -124,26 +164,24 @@ const Home = () => {
         ))}
       </div>
 
-      {/* Recent Games Section */}
-<div className="section">
-  <h2>🎮 Recent Games</h2>
-  <ul>
-    {recentGames.length > 0 ? (
-      recentGames.map((game, index) => (
-        <li key={index}>
-          <Link to={`/game/${game.game_id}`} className="game-link">
-            <strong>{game.title}</strong>
-          </Link>
-          {" – Added on "}
-          {new Date(game.date_added).toLocaleDateString()}
-        </li>
-      ))
-    ) : (
-      <p>No recent games found.</p>
-    )}
-  </ul>
-</div>
-
+      {/* Recent Games */}
+      <div className="section">
+        <h2>🎮 Recent Games</h2>
+        <ul>
+          {recentGames.length > 0 ? (
+            recentGames.map((game, index) => (
+              <li key={index}>
+                <Link to={`/game/${game.game_id}`} className="game-link">
+                  <strong>{game.title}</strong>
+                </Link>{" "}
+                – Added on {new Date(game.date_added).toLocaleDateString()}
+              </li>
+            ))
+          ) : (
+            <p>No recent games found.</p>
+          )}
+        </ul>
+      </div>
 
       {/* Recent Achievements */}
       <div className="section fade-in">
@@ -167,7 +205,7 @@ const Home = () => {
         ➕
       </button>
 
-      {/* Add Game Modal */}
+      {/* Modal */}
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>

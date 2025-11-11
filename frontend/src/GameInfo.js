@@ -15,28 +15,28 @@ const GameInfo = () => {
   const { id } = useParams(); // game_id from URL
   const navigate = useNavigate();
 
-  // States
   const [game, setGame] = useState(null);
   const [achievements, setAchievements] = useState([]);
   const [topUsers, setTopUsers] = useState([]);
   const [pointsTrend, setPointsTrend] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const userId = 1; // demo user for now
+  // Modal states
+  const [showModal, setShowModal] = useState(false);
+  const [selectedAchievement, setSelectedAchievement] = useState("");
 
+  const userId = 1; // static for demo — replace with logged-in user later
+
+  // Fetch all game data
   useEffect(() => {
     const fetchGameData = async () => {
       try {
         const [gameRes, achievementsRes, topUsersRes, pointsRes] =
           await Promise.all([
             axios.get(`http://localhost:5001/games/${id}`),
-            axios.get(
-              `http://localhost:5001/analytics/${userId}/game/${id}/achievements`
-            ),
+            axios.get(`http://localhost:5001/analytics/${userId}/game/${id}/achievements`),
             axios.get(`http://localhost:5001/analytics/game/${id}/top-users`),
-            axios.get(
-              `http://localhost:5001/analytics/${userId}/game/${id}/points-over-time`
-            ),
+            axios.get(`http://localhost:5001/analytics/${userId}/game/${id}/points-over-time`),
           ]);
 
         setGame(gameRes.data);
@@ -53,6 +53,41 @@ const GameInfo = () => {
     fetchGameData();
   }, [id, userId]);
 
+  // ✅ Mark game as completed
+  const handleMarkCompleted = async () => {
+    try {
+      await axios.put(`http://localhost:5001/users/${userId}/games/${id}/complete`);
+      alert("✅ Game marked as completed!");
+    } catch (err) {
+      console.error("Error marking game completed:", err);
+      alert("⚠️ Failed to mark as completed. Check console.");
+    }
+  };
+
+  // ➕ Unlock new achievement
+  const handleUnlockAchievement = async (e) => {
+    e.preventDefault();
+    if (!selectedAchievement) return alert("Please select an achievement.");
+
+    try {
+      await axios.post(`http://localhost:5001/users/${userId}/achievements`, {
+        achievement_id: selectedAchievement,
+      });
+      alert("🎉 Achievement unlocked!");
+      setShowModal(false);
+      setSelectedAchievement("");
+
+      // Refresh achievements list
+      const res = await axios.get(
+        `http://localhost:5001/analytics/${userId}/game/${id}/achievements`
+      );
+      setAchievements(res.data);
+    } catch (err) {
+      console.error("Error unlocking achievement:", err);
+      alert("⚠️ Error unlocking achievement. Check console.");
+    }
+  };
+
   if (loading) return <div className="loading">Loading game details...</div>;
   if (!game) return <div className="error">Game not found.</div>;
 
@@ -67,15 +102,9 @@ const GameInfo = () => {
         />
         <div className="game-details">
           <h1>{game.title}</h1>
-          <p>
-            <strong>Genre:</strong> {game.genre}
-          </p>
-          <p>
-            <strong>Platform:</strong> {game.platform}
-          </p>
-          <p>
-            <strong>Release Year:</strong> {game.release_year}
-          </p>
+          <p><strong>Genre:</strong> {game.genre}</p>
+          <p><strong>Platform:</strong> {game.platform}</p>
+          <p><strong>Release Year:</strong> {game.release_year}</p>
         </div>
       </div>
 
@@ -102,7 +131,14 @@ const GameInfo = () => {
                 <tr key={i}>
                   <td>{a.title}</td>
                   <td>{a.points}</td>
-                  <td>{a.status}</td>
+                  <td
+                    style={{
+                      color: a.status === "Unlocked" ? "#28a745" : "#ff4b5c",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {a.status}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -156,12 +192,40 @@ const GameInfo = () => {
 
       {/* Buttons */}
       <div className="actions">
-        <button onClick={() => navigate(-1)} className="back-btn">
-          ⬅ Back
+        <button onClick={() => navigate(-1)} className="back-btn">⬅ Back</button>
+        <button onClick={handleMarkCompleted} className="complete-btn">
+          ✅ Mark as Completed
         </button>
-        <button className="complete-btn">✅ Mark as Completed</button>
-        <button className="add-ach-btn">➕ Add Achievement</button>
+        <button onClick={() => setShowModal(true)} className="add-ach-btn">
+          ➕ Add Achievement
+        </button>
       </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h2>Unlock Achievement</h2>
+            <form onSubmit={handleUnlockAchievement}>
+              <label>Select Achievement</label>
+              <select
+                value={selectedAchievement}
+                onChange={(e) => setSelectedAchievement(e.target.value)}
+              >
+                <option value="">-- Choose an achievement --</option>
+                {achievements
+                  .filter((a) => a.status === "Locked")
+                  .map((a) => (
+                    <option key={a.achievement_id} value={a.achievement_id}>
+                      {a.title} ({a.points} pts)
+                    </option>
+                  ))}
+              </select>
+              <button type="submit" className="submit-btn">Unlock</button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

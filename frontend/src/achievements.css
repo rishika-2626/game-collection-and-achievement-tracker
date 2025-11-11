@@ -1,0 +1,125 @@
+.achievements-container {
+  padding: 2rem;
+  max-width: 1000px;
+  margin: auto;
+  font-family: "Poppins", sans-serif;
+  color: #222;
+  background: #f8fbff;
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+.page-title {
+  text-align: center;
+  color: #007bff;
+  margin-bottom: 1.5rem;
+}
+
+.active-user {
+  text-align: center;
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+
+.section {
+  background: #fff;
+  border-radius: 18px;
+  padding: 1.5rem;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.section:hover {
+  background: #f4f8ff;
+  transform: scale(1.01);
+}
+
+.card-highlight {
+  text-align: center;
+  color: #fff;
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  border-radius: 20px;
+  padding: 1.8rem;
+  margin-bottom: 2rem;
+}
+
+.card-highlight.warning {
+  background: linear-gradient(135deg, #ff6a00 0%, #ee0979 100%);
+}
+
+.big-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-top: 1rem;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+  border-bottom: 1px solid #e0e0e0;
+  padding: 0.8rem;
+  text-align: left;
+}
+
+.data-table th {
+  background: #f2f6ff;
+  color: #007bff;
+}
+
+.achievement-list li {
+  background: #f6faff;
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  margin-bottom: 0.5rem;
+}
+
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.badge-card {
+  background: #fff9f0;
+  border-radius: 16px;
+  padding: 1.2rem;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.badge-card:hover {
+  transform: translateY(-4px);
+ 
+}
+
+.badge-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.back-btn {
+  display: block;
+  margin: 2rem auto 1rem;
+  background: linear-gradient(135deg, #007bff 0%, #00c6ff 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 0.9rem 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.back-btn:hover {
+  transform: scale(1.05);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}

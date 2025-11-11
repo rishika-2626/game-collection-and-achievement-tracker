@@ -1,0 +1,129 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+.analytics-container {
+  font-family: "Poppins", sans-serif;
+  color: #222;
+  background: #f8fbff;
+  min-height: 100vh;
+  padding: 2.5rem 2rem 3.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+/* PAGE TITLE */
+.analytics-title {
+  text-align: center;
+  font-size: 2.3rem;
+  font-weight: 700;
+  color: #007bff;
+  margin-bottom: 2.5rem;
+  letter-spacing: 0.5px;
+}
+
+/* CHART SECTIONS */
+.chart-section {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 1.8rem 2rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.chart-section:hover {
+  background: #f4f8ff;
+  transform: scale(1.01);
+}
+
+.chart-section h2 {
+  color: #007bff;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.4rem;
+  letter-spacing: 0.3px;
+}
+
+/* CHART CONTAINERS */
+.recharts-wrapper {
+  border-radius: 12px;
+  background: #fafcff;
+  padding: 0.8rem;
+  transition: box-shadow 0.3s ease;
+}
+
+.chart-section:hover .recharts-wrapper {
+  box-shadow: 0 0 10px rgba(0, 114, 255, 0.15);
+}
+
+/* BACK BUTTON */
+.back-btn {
+  display: block;
+  margin: 3rem auto 0;
+  background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 28px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 18px rgba(0, 114, 255, 0.3);
+}
+
+.back-btn:hover {
+  transform: translateY(-3px);
+  background: linear-gradient(135deg, #0072ff 0%, #00c6ff 100%);
+}
+
+/* LOADING SPINNER */
+.loading {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #007bff;
+  font-size: 1.3rem;
+  font-weight: 500;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 1.2rem;
+  border: 5px solid #007bff;
+  border-top: 5px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* LEGENDS & AXES */
+.recharts-tooltip-wrapper {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.recharts-legend-wrapper {
+  font-weight: 500;
+}
+
+/* ANIMATIONS */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
