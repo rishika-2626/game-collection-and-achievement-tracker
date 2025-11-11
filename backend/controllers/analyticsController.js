@@ -90,18 +90,23 @@ const getUserGamesList = (req, res) => {
 
 // 7. Achievements per Game
 const getAchievementsPerGame = (req, res) => {
-  const userId = req.params.id;
+ const { userId, gameId } = req.params;
   const q = `
-    SELECT g.title AS game_title, 
-           a.title AS achievement_title,
-           CASE WHEN ua.achievement_id IS NULL THEN 'Locked' ELSE 'Unlocked' END AS status
+    SELECT 
+      a.achievement_id,
+      a.title,
+      a.points,
+      CASE 
+        WHEN ua.user_id IS NOT NULL THEN 'Unlocked'
+        ELSE 'Locked'
+      END AS status
     FROM Achievement a
-    JOIN Game g ON a.game_id = g.game_id
     LEFT JOIN User_Achievement ua 
-           ON a.achievement_id = ua.achievement_id AND ua.user_id = ?
-    ORDER BY g.title;
+      ON a.achievement_id = ua.achievement_id AND ua.user_id = ?
+    WHERE a.game_id = ?;
   `;
-  db.query(q, [userId], (err, results) => {
+
+  db.query(q, [userId, gameId], (err, results) => {
     if (err) return res.status(500).json(err);
     res.json(results);
   });

@@ -58,6 +58,8 @@ const GameInfo = () => {
     try {
       await axios.put(`http://localhost:5001/users/${userId}/games/${id}/complete`);
       alert("✅ Game marked as completed!");
+      localStorage.setItem("refreshMyGames", Date.now());
+      navigate("/mygames");
     } catch (err) {
       console.error("Error marking game completed:", err);
       alert("⚠️ Failed to mark as completed. Check console.");
@@ -209,18 +211,18 @@ const GameInfo = () => {
             <form onSubmit={handleUnlockAchievement}>
               <label>Select Achievement</label>
               <select
-                value={selectedAchievement}
-                onChange={(e) => setSelectedAchievement(e.target.value)}
-              >
-                <option value="">-- Choose an achievement --</option>
-                {achievements
-                  .filter((a) => a.status === "Locked")
-                  .map((a) => (
-                    <option key={a.achievement_id} value={a.achievement_id}>
-                      {a.title} ({a.points} pts)
-                    </option>
-                  ))}
-              </select>
+  value={selectedAchievement}
+  onChange={(e) => setSelectedAchievement(e.target.value)}
+>
+  <option value="">-- Choose an achievement --</option>
+  {achievements
+    .filter((a) => a.status === "Locked")
+    .map((a) => (
+      <option key={a.achievement_id} value={a.achievement_id}>
+        {a.title} ({a.points} pts)
+      </option>
+    ))}
+</select>
               <button type="submit" className="submit-btn">Unlock</button>
             </form>
           </div>

@@ -109,18 +109,54 @@ const getUserBadges = (req, res) => {
 // -------------------- UPDATE --------------------
 
 // ✅ Mark game as completed
+// ✅ Mark game as completed (with auto-add if missing)
 const markGameCompleted = (req, res) => {
   const { id, gameId } = req.params;
-  const q = `
-    UPDATE User_Game
-    SET is_completed = TRUE, completion_date = CURDATE()
-    WHERE user_id = ? AND game_id = ?;
-  `;
-  db.query(q, [id, gameId], (err) => {
-    if (err) return res.status(500).json(err);
-    res.json({ message: "Game marked as completed!" });
+
+  // Step 1: Check if user already has the game
+  const checkQuery = `SELECT * FROM User_Game WHERE user_id = ? AND game_id = ?`;
+
+  db.query(checkQuery, [id, gameId], (err, results) => {
+    if (err) return res.status(500).json({ error: err });
+
+    if (results.length === 0) {
+      // Step 2: Game not in collection — add it as completed
+      const insertQuery = `
+        INSERT INTO User_Game (user_id, game_id, date_added, is_completed, completion_date)
+        VALUES (?, ?, CURDATE(), TRUE, CURDATE());
+      `;
+      db.query(insertQuery, [id, gameId], (insertErr) => {
+        if (insertErr) return res.status(500).json({ error: insertErr });
+        return res.json({
+          message: "Game added to collection and marked as completed!",
+          status: "added_completed",
+        });
+      });
+    } else {
+      // Step 3: Game exists — update it to completed
+      const updateQuery = `
+        UPDATE User_Game
+        SET is_completed = TRUE, completion_date = CURDATE()
+        WHERE user_id = ? AND game_id = ?;
+      `;
+      db.query(updateQuery, [id, gameId], (updateErr, result) => {
+        if (updateErr) return res.status(500).json({ error: updateErr });
+
+        if (result.affectedRows === 0) {
+          return res
+            .status(404)
+            .json({ message: "Game not found in user collection." });
+        }
+
+        return res.json({
+          message: "Game marked as completed!",
+          status: "updated_completed",
+        });
+      });
+    }
   });
 };
+
 
 // -------------------- DELETE --------------------
 

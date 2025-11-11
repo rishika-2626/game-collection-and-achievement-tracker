@@ -19,58 +19,73 @@ const MyGames = () => {
   const [gamesPerMonth, setGamesPerMonth] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch data for selected user
+  // ✅ Fetch all MyGames data (moved outside of useEffect)
+  const fetchAll = async () => {
+    console.log(`📡 Fetching data for userId: ${userId}`);
+    try {
+      const [
+        gamesRes,
+        completedRes,
+        recentRes,
+        topGamesRes,
+        monthlyRes,
+      ] = await Promise.all([
+        axios.get(`http://localhost:5001/analytics/${userId}/games-list`),
+        axios.get(`http://localhost:5001/analytics/${userId}/completed-games`),
+        axios.get(`http://localhost:5001/analytics/${userId}/recent-games`),
+        axios.get(`http://localhost:5001/analytics/top-games`),
+        axios.get(`http://localhost:5001/analytics/${userId}/games-per-month`),
+      ]);
+
+      setGames(gamesRes.data);
+      setCompletedCount(completedRes.data.completed_games);
+      setRecentGames(recentRes.data);
+      setTopGames(topGamesRes.data);
+      setGamesPerMonth(monthlyRes.data);
+    } catch (err) {
+      console.error("Error fetching MyGames data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ Fetch on mount or user change
   useEffect(() => {
     console.log("📦 Loaded userId from localStorage:", userId);
-    const fetchAll = async () => {
-      try {
-        const [
-          gamesRes,
-          completedRes,
-          recentRes,
-          topGamesRes,
-          monthlyRes,
-        ] = await Promise.all([
-          axios.get(`http://localhost:5001/analytics/${userId}/games-list`),
-          axios.get(`http://localhost:5001/analytics/${userId}/completed-games`),
-          axios.get(`http://localhost:5001/analytics/${userId}/recent-games`),
-          axios.get(`http://localhost:5001/analytics/top-games`),
-          axios.get(`http://localhost:5001/analytics/${userId}/games-per-month`),
-        ]);
-
-        setGames(gamesRes.data);
-        setCompletedCount(completedRes.data.completed_games);
-        setRecentGames(recentRes.data);
-        setTopGames(topGamesRes.data);
-        setGamesPerMonth(monthlyRes.data);
-      } catch (err) {
-        console.error("Error fetching MyGames data:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAll();
   }, [userId]);
 
-  // Automatically update user when switched on Home
+  // ✅ Listen for storage events (user switch or refresh trigger)
   useEffect(() => {
-    const handleStorageChange = () => {
-      const newUserId = localStorage.getItem("userId") || 1;
-      setUserId(newUserId);
-      setLoading(true);
+    const handleStorageChange = (e) => {
+      // 🔹 When user changes profile
+      if (e.key === "userId") {
+        const newUserId = localStorage.getItem("userId") || 1;
+        console.log("👤 Switched to user:", newUserId);
+        setUserId(newUserId);
+        setLoading(true);
+      }
+
+      // 🔹 When a game is marked as completed from GameInfo
+      if (e.key === "refreshMyGames") {
+        console.log("🔁 Refresh trigger received, reloading data...");
+        fetchAll();
+      }
     };
 
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
+  // ✅ Loading State
   if (loading) return <div className="loading">Loading your games...</div>;
 
   return (
     <div className="mygames-container">
       <h1 className="page-title">🎮 My Games Dashboard</h1>
-      <p className="active-user">Viewing data for: <strong>User #{userId}</strong></p>
+      <p className="active-user">
+        Viewing data for: <strong>User #{userId}</strong>
+      </p>
 
       {/* User Game List */}
       <div className="section">

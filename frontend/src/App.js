@@ -16,7 +16,7 @@ function App() {
         <Route path="/game/:id" element={<GameInfo />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/analytics" element={<AnalyticsDashboard />} />
-        <Route path="/mygames" element={<MyGames />} />
+        <Route path="/mygames" element={<MyGames key={Date.now()} />} />
         <Route path="/achievements" element={<AchievementsDashboard />} />
       </Routes>
     </Router>
