@@ -187,15 +187,22 @@ const addUserGame = (req, res) => {
 };
 
 // ✅ Unlock new achievement
+// Unlock achievement - no total points update needed
 const unlockAchievement = (req, res) => {
   const userId = req.params.id;
   const { achievement_id } = req.body;
+
+  if (!achievement_id)
+    return res.status(400).json({ message: "Achievement ID required" });
+
   const q = `
     INSERT INTO User_Achievement (user_id, achievement_id, date_unlocked)
     VALUES (?, ?, CURDATE());
   `;
+
   db.query(q, [userId, achievement_id], (err) => {
     if (err) return res.status(500).json(err);
+
     res.json({ message: "Achievement unlocked!" });
   });
 };

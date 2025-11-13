@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import "./gameinfo.css";
 
+
 const GameInfo = () => {
   const { id } = useParams(); // game_id from URL
   const navigate = useNavigate();
@@ -93,27 +94,28 @@ const GameInfo = () => {
   if (loading) return <div className="loading">Loading game details...</div>;
   if (!game) return <div className="error">Game not found.</div>;
 
+
   return (
     <div className="game-info-container">
       {/* Header */}
-      <div className="game-header">
-        <img
-          src={game.cover_image || "https://via.placeholder.com/150"}
-          alt={game.title}
-          className="game-cover"
-        />
-        <div className="game-details">
-          <h1>{game.title}</h1>
-          <p><strong>Genre:</strong> {game.genre}</p>
-          <p><strong>Platform:</strong> {game.platform}</p>
-          <p><strong>Release Year:</strong> {game.release_year}</p>
-        </div>
-      </div>
+     <div className="game-header no-image">
+  <div className="game-title-box">
+    <h1>{game.title}</h1>
+  </div>
+
+  <div className="game-details side-box">
+    <p><strong>Genre:</strong> {game.genre || "Unknown"}</p>
+    <p><strong>Platform:</strong> {game.platform || "Unknown"}</p>
+    <p><strong>Release Year:</strong> {game.release_year || "N/A"}</p>
+  </div>
+</div>
+
 
       {/* Description */}
       <div className="section">
         <h2>📝 Description</h2>
-        <p>{game.description || "No description available for this game."}</p>
+        <p>{`Explore and enjoy ${game.title}, an immersive gaming experience across ${game.platforms}.`}</p>
+
       </div>
 
       {/* Achievements */}
@@ -131,7 +133,7 @@ const GameInfo = () => {
             <tbody>
               {achievements.map((a, i) => (
                 <tr key={i}>
-                  <td>{a.title}</td>
+                  <td>{a.achievement_title}</td>
                   <td>{a.points}</td>
                   <td
                     style={{
@@ -219,7 +221,7 @@ const GameInfo = () => {
     .filter((a) => a.status === "Locked")
     .map((a) => (
       <option key={a.achievement_id} value={a.achievement_id}>
-        {a.title} ({a.points} pts)
+        {a.achievement_title} ({a.points} pts)
       </option>
     ))}
 </select>

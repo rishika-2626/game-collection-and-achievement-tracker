@@ -1,18 +1,24 @@
 const db = require("../config/db");
 
 // 1. Total Points (User)
+// ✅ Get total points = SUM of unlocked achievements
 const getUserTotalPoints = (req, res) => {
   const userId = req.params.id;
+
   const q = `
-    SELECT u.username, u.total_points
-    FROM User u
-    WHERE u.user_id = ?;
+    SELECT COALESCE(SUM(a.points), 0) AS total_points
+    FROM User_Achievement ua
+    JOIN Achievement a ON ua.achievement_id = a.achievement_id
+    WHERE ua.user_id = ?;
   `;
-  db.query(q, [userId], (err, results) => {
+
+  db.query(q, [userId], (err, result) => {
     if (err) return res.status(500).json(err);
-    res.json(results[0]);
+
+    res.json({ total_points: result[0].total_points });
   });
 };
+
 
 // 2. Number of Games Collected
 const getUserTotalGames = (req, res) => {
@@ -90,23 +96,25 @@ const getUserGamesList = (req, res) => {
 
 // 7. Achievements per Game
 const getAchievementsPerGame = (req, res) => {
- const { userId, gameId } = req.params;
+  const userId = req.params.id;
+
   const q = `
-    SELECT 
-      a.achievement_id,
-      a.title,
-      a.points,
+    SELECT
+      g.title AS game_title,
+      a.title AS achievement_title,
       CASE 
-        WHEN ua.user_id IS NOT NULL THEN 'Unlocked'
-        ELSE 'Locked'
+        WHEN ua.achievement_id IS NULL THEN 'Locked' 
+        ELSE 'Unlocked' 
       END AS status
     FROM Achievement a
-    LEFT JOIN User_Achievement ua 
-      ON a.achievement_id = ua.achievement_id AND ua.user_id = ?
-    WHERE a.game_id = ?;
+    JOIN Game g ON a.game_id = g.game_id
+    LEFT JOIN User_Achievement ua
+      ON a.achievement_id = ua.achievement_id 
+      AND ua.user_id = ?
+    ORDER BY g.title, a.points DESC;
   `;
 
-  db.query(q, [userId, gameId], (err, results) => {
+  db.query(q, [userId], (err, results) => {
     if (err) return res.status(500).json(err);
     res.json(results);
   });
@@ -169,18 +177,27 @@ const getCompletionRateByGenre = (req, res) => {
 
 
 // 11. Leaderboard
+// ===================== LEADERBOARD =====================
+// Total points = sum of all unlocked achievement points
 const getLeaderboard = (req, res) => {
   const q = `
-    SELECT username, total_points
-    FROM User
-    ORDER BY total_points DESC
-    LIMIT 10;
+    SELECT 
+      u.user_id,
+      u.username,
+      COALESCE(SUM(a.points), 0) AS total_points
+    FROM User u
+    LEFT JOIN User_Achievement ua ON u.user_id = ua.user_id
+    LEFT JOIN Achievement a ON ua.achievement_id = a.achievement_id
+    GROUP BY u.user_id
+    ORDER BY total_points DESC;
   `;
-  db.query(q, (err, results) => {
+
+  db.query(q, (err, result) => {
     if (err) return res.status(500).json(err);
-    res.json(results);
+    res.json(result);
   });
 };
+
 
 
 // 12. Top Achievers per Game
@@ -512,6 +529,7 @@ const getGamePointsOverTime = (req, res) => {
 
 
 
+
 module.exports = {
   getUserTotalPoints,
   getUserTotalGames,
@@ -539,6 +557,7 @@ module.exports = {
   getAchievementsForGame,
   getTopUsersForGame,
   getGamePointsOverTime,
+  getAchievementsPerGame,
   //getGameCompletionRate,
 };
 

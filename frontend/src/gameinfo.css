@@ -7,29 +7,81 @@
 }
 
 /* Header */
-.game-header {
+/* HEADER WRAPPER */
+/* HEADER CONTAINER */
+.game-header.no-image {
   display: flex;
-  align-items: center;
+  align-items: stretch;       /* same height */
+  gap: 1.5rem;
   background: linear-gradient(135deg, #667eea, #764ba2);
   padding: 1.5rem;
   border-radius: 20px;
   color: white;
   margin-bottom: 2rem;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
 }
 
-.game-cover {
-  width: 150px;
-  height: 150px;
-  border-radius: 15px;
-  margin-right: 1.5rem;
-  object-fit: cover;
+/* ---------- LEFT BOX: Game title ---------- */
+.game-title-box {
+  min-width: 260px;              /* compact width */
+  padding: 1.2rem 1.5rem;
+  background: rgba(255,255,255,0.15);
+  border-radius: 14px;
+
+  /* Center the text perfectly */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-.game-details h1 {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
+.game-title-box h1 {
+  margin: 0;
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: white;
 }
+
+/* ---------- RIGHT BOX: Game details ---------- */
+.game-details.side-box {
+  flex-grow: 1;                 /* expands but NOT same width as title */
+  padding: 1.2rem 1.5rem;
+  background: rgba(255,255,255,0.12);
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;      /* vertically center info */
+}
+
+.game-details.side-box p {
+  margin: 0.3rem 0;
+  font-size: 1.1rem;
+  color: #f5f5f5;
+}
+
+.game-details strong {
+  color: #ffffff;
+}
+
+/* ---------- MOBILE ---------- */
+@media (max-width: 700px) {
+  .game-header.no-image {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .game-title-box,
+  .game-details.side-box {
+    width: 100%;
+    min-width: 100%;
+  }
+}
+
 
 /* Sections */
 .section {
