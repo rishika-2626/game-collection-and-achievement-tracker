@@ -26,7 +26,8 @@ const GameInfo = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedAchievement, setSelectedAchievement] = useState("");
 
-  const userId = 1; // static for demo — replace with logged-in user later
+  const userId = parseInt(localStorage.getItem("userId"));
+ ; // static for demo — replace with logged-in user later
 
   // Fetch all game data
   useEffect(() => {

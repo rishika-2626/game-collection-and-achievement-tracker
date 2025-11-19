@@ -17,6 +17,8 @@ const achievementRoutes = require("./routes/achievementRoutes");
 const badgeRoutes = require("./routes/badgeRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 
+const authRoutes = require("./routes/authRoutes");
+app.use("/auth", authRoutes);
 
 app.use("/users", userRoutes);
 app.use("/games", gameRoutes);

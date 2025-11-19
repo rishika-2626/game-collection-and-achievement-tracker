@@ -102,6 +102,8 @@ const Home = () => {
 
   return (
     <div className="home-container">
+     
+
       {/* Header with Title and User Switcher */}
       <div className="header">
         <h1 className="dashboard-title">🎮 Game Tracker</h1>
