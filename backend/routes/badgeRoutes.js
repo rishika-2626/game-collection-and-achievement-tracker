@@ -1,8 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const { getAllBadges, getBadgeById } = require("../controllers/badgeController");
 
-router.get("/", getAllBadges);
-router.get("/:id", getBadgeById);
+// No direct badge routes needed. Badges are awarded through evaluateBadges()
+// and fetched using /users/:id/badges in userRoutes.
 
 module.exports = router;

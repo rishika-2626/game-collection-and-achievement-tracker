@@ -1,5 +1,6 @@
 const db = require("../config/db");
 const bcrypt = require("bcryptjs");
+const { evaluateBadges } = require("./badgeController");
 
 // -------------------- CREATE --------------------
 
@@ -7,18 +8,20 @@ const bcrypt = require("bcryptjs");
 const registerUser = async (req, res) => {
   const { username, email, password } = req.body;
 
-  // Validate input
   if (!username || !email || !password)
     return res.status(400).json({ message: "All fields are required" });
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
+
     const q = `
       INSERT INTO User (username, email, password, join_date, total_points)
       VALUES (?, ?, ?, CURDATE(), 0)
     `;
+
     db.query(q, [username, email, hashedPassword], (err, result) => {
       if (err) return res.status(500).json({ error: err });
+
       res.json({ message: "User registered successfully", userId: result.insertId });
     });
   } catch (error) {
@@ -26,18 +29,22 @@ const registerUser = async (req, res) => {
   }
 };
 
-// ✅ Login user
+// -------------------- LOGIN --------------------
+
 const loginUser = (req, res) => {
   const { email, password } = req.body;
 
   const q = `SELECT * FROM User WHERE email = ?`;
+
   db.query(q, [email], async (err, results) => {
     if (err) return res.status(500).json({ error: err });
+
     if (results.length === 0)
       return res.status(404).json({ message: "User not found" });
 
     const user = results[0];
     const validPass = await bcrypt.compare(password, user.password);
+
     if (!validPass) return res.status(401).json({ message: "Invalid password" });
 
     res.json({
@@ -52,23 +59,28 @@ const loginUser = (req, res) => {
 // ✅ Get user details
 const getUserById = (req, res) => {
   const userId = req.params.id;
+
   const q = `SELECT user_id, username, email, join_date, total_points FROM User WHERE user_id = ?`;
+
   db.query(q, [userId], (err, result) => {
     if (err) return res.status(500).json(err);
     res.json(result[0]);
   });
 };
 
-// ✅ Get user's games
+// ✅ Get user's game collection
 const getUserGames = (req, res) => {
   const userId = req.params.id;
+
   const q = `
-    SELECT g.game_id, g.title, g.release_year, gen.name AS genre, ug.is_completed, ug.date_added
+    SELECT g.game_id, g.title, g.release_year, gen.name AS genre, 
+           ug.is_completed, ug.date_added
     FROM User_Game ug
     JOIN Game g ON ug.game_id = g.game_id
     JOIN Genre gen ON g.genre_id = gen.genre_id
     WHERE ug.user_id = ?;
   `;
+
   db.query(q, [userId], (err, results) => {
     if (err) return res.status(500).json(err);
     res.json(results);
@@ -78,6 +90,7 @@ const getUserGames = (req, res) => {
 // ✅ Get user's achievements
 const getUserAchievements = (req, res) => {
   const userId = req.params.id;
+
   const q = `
     SELECT a.title, a.description, a.points, g.title AS game_title, ua.date_unlocked
     FROM User_Achievement ua
@@ -85,6 +98,7 @@ const getUserAchievements = (req, res) => {
     JOIN Game g ON a.game_id = g.game_id
     WHERE ua.user_id = ?;
   `;
+
   db.query(q, [userId], (err, results) => {
     if (err) return res.status(500).json(err);
     res.json(results);
@@ -94,12 +108,14 @@ const getUserAchievements = (req, res) => {
 // ✅ Get user's badges
 const getUserBadges = (req, res) => {
   const userId = req.params.id;
+
   const q = `
     SELECT b.name, b.description, ub.date_awarded
     FROM User_Badge ub
     JOIN Badge b ON ub.badge_id = b.badge_id
     WHERE ub.user_id = ?;
   `;
+
   db.query(q, [userId], (err, results) => {
     if (err) return res.status(500).json(err);
     res.json(results);
@@ -108,45 +124,46 @@ const getUserBadges = (req, res) => {
 
 // -------------------- UPDATE --------------------
 
-// ✅ Mark game as completed
-// ✅ Mark game as completed (with auto-add if missing)
+// ✅ Mark game as completed (auto-add if missing)
 const markGameCompleted = (req, res) => {
   const { id, gameId } = req.params;
 
-  // Step 1: Check if user already has the game
-  const checkQuery = `SELECT * FROM User_Game WHERE user_id = ? AND game_id = ?`;
+  const checkQuery = `
+      SELECT * FROM User_Game 
+      WHERE user_id = ? AND game_id = ?
+  `;
 
-  db.query(checkQuery, [id, gameId], (err, results) => {
+  db.query(checkQuery, [id, gameId], (err, result) => {
     if (err) return res.status(500).json({ error: err });
 
-    if (results.length === 0) {
-      // Step 2: Game not in collection — add it as completed
+    // If NOT in collection → insert then evaluate badges
+    if (result.length === 0) {
       const insertQuery = `
         INSERT INTO User_Game (user_id, game_id, date_added, is_completed, completion_date)
         VALUES (?, ?, CURDATE(), TRUE, CURDATE());
       `;
+
       db.query(insertQuery, [id, gameId], (insertErr) => {
         if (insertErr) return res.status(500).json({ error: insertErr });
+
+        evaluateBadges(id); // ⭐ Badge check
+
         return res.json({
-          message: "Game added to collection and marked as completed!",
+          message: "Game added & marked as completed!",
           status: "added_completed",
         });
       });
     } else {
-      // Step 3: Game exists — update it to completed
       const updateQuery = `
         UPDATE User_Game
         SET is_completed = TRUE, completion_date = CURDATE()
-        WHERE user_id = ? AND game_id = ?;
+        WHERE user_id = ? AND game_id = ?
       `;
-      db.query(updateQuery, [id, gameId], (updateErr, result) => {
+
+      db.query(updateQuery, [id, gameId], (updateErr) => {
         if (updateErr) return res.status(500).json({ error: updateErr });
 
-        if (result.affectedRows === 0) {
-          return res
-            .status(404)
-            .json({ message: "Game not found in user collection." });
-        }
+        evaluateBadges(id); // ⭐ Badge check
 
         return res.json({
           message: "Game marked as completed!",
@@ -157,37 +174,45 @@ const markGameCompleted = (req, res) => {
   });
 };
 
-
 // -------------------- DELETE --------------------
 
-// ✅ Delete game from collection
+// ✅ Remove game from collection
 const deleteUserGame = (req, res) => {
   const { id, gameId } = req.params;
+
   const q = `DELETE FROM User_Game WHERE user_id = ? AND game_id = ?`;
+
   db.query(q, [id, gameId], (err) => {
     if (err) return res.status(500).json(err);
-    res.json({ message: "Game removed from collection" });
+
+    evaluateBadges(id); // ⭐ Might change "Collector" or "Explorer"
+
+    res.json({ message: "Game removed successfully" });
   });
 };
 
 // -------------------- ADD RELATIONS --------------------
 
-// ✅ Add game to collection
+// ✅ Add game to user library
 const addUserGame = (req, res) => {
   const userId = req.params.id;
   const { game_id } = req.body;
+
   const q = `
-    INSERT INTO User_Game (user_id, game_id, date_added, is_completed)
+    INSERT IGNORE INTO User_Game (user_id, game_id, date_added, is_completed)
     VALUES (?, ?, CURDATE(), FALSE);
   `;
+
   db.query(q, [userId, game_id], (err) => {
     if (err) return res.status(500).json(err);
+
+    evaluateBadges(userId); // ⭐ Badge check
+
     res.json({ message: "Game added to collection!" });
   });
 };
 
-// ✅ Unlock new achievement
-// Unlock achievement - no total points update needed
+// ✅ Unlock achievement
 const unlockAchievement = (req, res) => {
   const userId = req.params.id;
   const { achievement_id } = req.body;
@@ -196,12 +221,14 @@ const unlockAchievement = (req, res) => {
     return res.status(400).json({ message: "Achievement ID required" });
 
   const q = `
-    INSERT INTO User_Achievement (user_id, achievement_id, date_unlocked)
+    INSERT IGNORE INTO User_Achievement (user_id, achievement_id, date_unlocked)
     VALUES (?, ?, CURDATE());
   `;
 
   db.query(q, [userId, achievement_id], (err) => {
     if (err) return res.status(500).json(err);
+
+    evaluateBadges(userId); // ⭐ Badge check
 
     res.json({ message: "Achievement unlocked!" });
   });
